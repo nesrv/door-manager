@@ -1,11 +1,12 @@
 from time import time
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 import aiohttp
 
 from django.http import JsonResponse
 
 from authlib.jose import JsonWebToken
 
+from .forms import *
 from .setting2 import CONTROLLERS, JWT_PRIVATE_KEY, JWT_ALGORITHM
 
 # from .settings2 import CONTROLLERS, JWT_PRIVATE_KEY, JWT_ALGORITHM
@@ -27,27 +28,52 @@ def index(request):
     context = {
         'title': "Access Manager",
         'subtitle': 'Door opening and control',
-        'CONTROLLERS': CONTROLLERS
+        'CONTROLLERS': Door.objects.all()
     }
     return render(request, 'interface/index.html', context)
 
 
 def user(request):
-    users = User.objects.all()
-    door = Door.objects.all()
     context = {'title': "Access Manager",
                'subtitle': 'User administration',
-               'users': users,
-               'doors': door
+               'users': User.objects.all(),
+               'doors': Door.objects.all()
                }
+
     return render(request, 'interface/user.html', context)
 
 
 def history(request):
+    h1 = History(door=Door.objects.get(pk=1), user=User.objects.get(pk=1))
+    h1.save()
     context = {'title': "Access Manager",
-               'subtitle': 'History of logs'
+               'subtitle': 'History of logs',
+               'history': History.objects.all()
                }
     return render(request, 'interface/history.html', context)
+
+
+def logs(request):
+    context = {'title': "Access Manager",
+               'subtitle': 'History of logs',
+               }
+    return render(request, 'interface/logs.html', context)
+
+
+def adduser(request):
+    if request.method == "POST":
+        form = AddUserForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # User.objects.create(**form.cleaned_data)
+            return redirect('user')
+    else:
+        form = AddUserForm()
+    context = {'form': form,
+               'title': "Access Manager",
+               'subtitle': 'Add user'
+               }
+    return render(request, 'interface/adduser.html', context)
 
 
 async def controller_determinant(request, path, door_name):

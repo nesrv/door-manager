@@ -4,11 +4,11 @@ html {
         }
         body {
             min-height: 100vh ;
-            background: linear-gradient(#0033FF, #3333FF) no-repeat;
+            background: linear-gradient(#DCDCDC, #A9A9A9) no-repeat;
         }
         h1,h3,h4 {
             text-align: left;
-            color: yellow;
+            color: #330000;
             text-shadow: 0 2px 5px rgba(150, 150, 150, 0.8);
             margin-left: 20px;
         }

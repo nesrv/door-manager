@@ -6,21 +6,51 @@ from django.http import JsonResponse
 
 from authlib.jose import JsonWebToken
 
-from . setting2 import CONTROLLERS, JWT_PRIVATE_KEY, JWT_ALGORITHM
+from .setting2 import CONTROLLERS, JWT_PRIVATE_KEY, JWT_ALGORITHM
 
 # from .settings2 import CONTROLLERS, JWT_PRIVATE_KEY, JWT_ALGORITHM
 
 ACCESS_TOKEN_TIME_TOLERANCE = 3600
 jwt = JsonWebToken([JWT_ALGORITHM])
 
+from .models import *
+
+menu = [
+    {'title': "Door control", 'url_name': 'index'},
+    {'title': "User", 'url_name': 'user'},
+    {'title': "History", 'url_name': 'history'},
+    {'title': "Administrator", 'url_name': 'admin'}
+]
+
 
 def index(request):
-    context = {'title': "Access Manager", 'CONTROLLERS': CONTROLLERS, }
-    return render(request, 'index.html', context)
+    context = {
+        'title': "Access Manager",
+        'subtitle': 'Door opening and control',
+        'CONTROLLERS': CONTROLLERS
+    }
+    return render(request, 'interface/index.html', context)
+
+
+def user(request):
+    users = User.objects.all()
+    door = Door.objects.all()
+    context = {'title': "Access Manager",
+               'subtitle': 'User administration',
+               'users': users,
+               'doors': door
+               }
+    return render(request, 'interface/user.html', context)
+
+
+def history(request):
+    context = {'title': "Access Manager",
+               'subtitle': 'History of logs'
+               }
+    return render(request, 'interface/history.html', context)
 
 
 async def controller_determinant(request, path, door_name):
-   
     url = [(controller['url']) for controller in CONTROLLERS if controller['name'] == door_name][0] + "/" + path
     current_timestamp = int(time())
 
@@ -41,7 +71,7 @@ async def controller_determinant(request, path, door_name):
             },
         )
         resp = await response.json()
-        print (resp)
+        print(resp)
         return JsonResponse(resp)
 
         # return web.json_response({

@@ -1,53 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{title}}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
-    <style>
-        html {
-            font-family: Verdana, "sans-serif";
-        }
-        body {
-            min-height: 100vh ;
-            background: linear-gradient(#0000FF, #0099FF) no-repeat;
-        }
-        h1 {
-            text-align: center;
-            color: yellow;
-            text-shadow: 0 2px 5px rgba(150, 150, 150, 0.8);
-        }
-        #root {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .form {
-            width: 50%;
-            margin-bottom: 20px;
-        }
-   ,     .form__label {
-            text-align: center;
-            margin-top: 10px;
-            background-color: yellow;
-        }
-        .blink {
-        animation: blink 1s infinite; /* Параметры анимации */
-       }
-       @keyframes blink {
-        from { opacity: 1; /* Непрозрачный текст */ }
-        to { opacity: 0.8; /* Прозрачный текст */ }
-       }
-
-    </style>
-</head>
-<body>
-<h1>{{title}}</h1>
+{% extends 'interface/base.html' %}
+{% block content %}
 <div id="root">
 
     <div class="form">
-
 
         {% for door in CONTROLLERS %}
         <h3> "{{ door.name }}"</h3>
@@ -65,12 +20,8 @@
         <span class="badge text-bg-danger" id="check_2"> check2 </span>
     </div>
 </div>
-</div>
-</body>
+
 <script type="application/javascript">
-
-
-
     let base_url = window.location.protocol + '//' + window.location.host + '/';
     let status = "Closed";
     const checkStatus = async(doorName) => {
@@ -110,8 +61,7 @@
             document.getElementById(doorName).innerHTML = "Access denied";
         }
         }
-
-
-
 </script>
-</html>
+
+{% endblock  %}
+

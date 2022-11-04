@@ -1,0 +1,21 @@
+{%  extends 'door/base.html' %}
+
+history_test
+
+{% block content %}
+
+
+{% for h in history %}
+
+# {{ h.id }}. {{ h.time_opening|date:'Y-m-d H:i:s' }} 
+{{ h.user }} open  {{ h.door }}
+
+<hr>
+
+{% endfor %}
+    
+
+
+
+{% endblock %}
+

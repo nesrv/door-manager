@@ -1,0 +1,37 @@
+{%  extends 'door/base.html' %}
+
+
+{% block content %}
+
+<ul class="list-articles">
+    {% for user in users %}
+    <li>
+        <div class="article-panel">
+            <p class="first"> {{user.door}} : @{{ user.login }}</p>
+            <p class="last">Date: {{user.time_update|date:"d-m-Y H:i:s"}}</p>
+
+        </div>
+    <li><h2>{{user.name}}</h2>
+
+
+        {% if user.photo %}
+        <p><img class="img-article-left thumb" src="{{user.photo.url}}"></p>
+        <br><br>
+        {% endif %}
+        <h2>{{user.title}}</h2>
+
+        {% autoescape on %}
+        {{user.description|linebreaks|truncatewords:50}}
+        {% endautoescape %}
+        <div class="clear"></div>
+        <p class="link-button"><a href="{{ user.get_absolute_url }}"> more ... </a></p>
+
+    </li>
+
+
+    {% endfor %}
+</ul>
+
+
+{% endblock %}
+

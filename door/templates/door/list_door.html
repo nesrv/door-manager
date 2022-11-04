@@ -1,0 +1,12 @@
+{% for door in doors %}
+
+
+{% if door.pk|add:"0" == door_selected|add:"0" %}
+<li class="selected">{{door.id}}.{{door.name}}</li>
+
+{% else %}
+<li><a href="{{ door.get_absolute_url }}">{{door.id}}. {{door.name}}</a></li>
+
+{% endif %}
+
+{% endfor %}

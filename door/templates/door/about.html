@@ -1,0 +1,24 @@
+{%  extends 'door/base.html' %}
+
+{% block content %}
+
+<h1> {{title}} </h1>
+<br>
+
+{% for c in page_obj %}
+<p>  {{ c.id }}) {{ c }} </p>
+{% endfor %}
+
+<nav>
+    <ul>
+        {% for p in page_obj.paginator.page_range %}
+        <li>
+            <a href="?page={{ p }}"> {{ p }} page </a>
+        </li>
+        {% endfor %}
+    
+    </ul>
+</nav>
+
+
+{% endblock %}

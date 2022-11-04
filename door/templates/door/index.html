@@ -1,0 +1,71 @@
+{%  extends 'door/base.html' %}
+{% block content %}
+
+<ul class="list-articles">
+    <div class="form">
+        {% for door in doors %}
+
+        <li>
+            <div class="article-panel">
+                <p class="first"> Door : {{door.name}}</p>
+                <p class="last">Date: {{door.time_update|date:"d-m-Y H:i:s"}}</p>
+            </div>
+
+        <li><h2>{{door.name}}</h2>
+            <button onclick="window.location.href = '/door-status/{{door.name}}';"> /door-status/{{door.name}}</button>
+            </p>
+            <button type="button" class="btn btn-secondary" name={{ door.name }} onclick="openDoor( '{{ door.name }}')">
+                Open door {{door.name}}
+            </button>
+            <button type="button" class="btn btn-success" onclick="checkStatus('{{ door.name }}')"> Check door status
+            </button>
+            <p class="blink">
+                <span class="badge text-bg-danger" id={{ door.name }}> Closed </span>
+        </li>
+        {% endfor %}
+</div>
+
+<script type="application/javascript">
+    let base_url = window.location.protocol + '//' + window.location.host + '/';
+    let status = "Closed";
+    const checkStatus = async(doorName) => {
+
+            let url = base_url + 'door-status' + "/"+ doorName;
+            console.log(url);
+            let response = await fetch(url);
+            let commits = await response.json();
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById(doorName).innerHTML = "Сurrent status: " + data.status;
+
+                    if (data.status == "closed")
+                    document.getElementById(doorName).className = "badge text-bg-danger"
+
+
+
+            }).catch(()=>{
+                document.getElementById("result").innerHTML += "Service does not work correctly";
+                alert(JSON.stringify('Exception occurred'));
+            })
+
+        }
+    const openDoor = async(doorName) => {
+        let url = base_url + 'grant-access' + "/" + doorName;
+        //console.log(url);
+
+        let response = await fetch(url);
+        //console.log(response);
+        let commits = await response.json();
+        if (commits.ok==true){
+            document.getElementById(doorName).innerHTML = "Opened";
+            document.getElementById(doorName).className = "badge bg-success"
+            }
+        else {
+            document.getElementById(doorName).innerHTML = "Access denied";
+        }
+        }
+
+</script>
+{% endblock %}
+

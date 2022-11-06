@@ -1,19 +1,32 @@
 {%  extends 'door/base.html' %}
 
-history_test
+
+
+
+
 
 {% block content %}
 
+<h1> {{title}} </h1>
+<br>
 
-{% for h in history %}
+{% for h in page_obj %}
 
-# {{ h.id }}. {{ h.time_opening|date:'Y-m-d H:i:s' }} 
+# {{ h.id }}. {{ h.time_opening|date:'Y-m-d H:i:s' }}
 {{ h.user }} open  {{ h.door }}
-
 <hr>
-
 {% endfor %}
-    
+
+<nav>
+    <ul>
+        {% for p in page_obj.paginator.page_range %}
+
+            <a href="?page={{ p }}"> {{ p }} </a>
+
+        {% endfor %}
+
+    </ul>
+</nav>
 
 
 

@@ -7,6 +7,7 @@ from door.views import *
 
 
 
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('captcha/', include('captcha.urls')),

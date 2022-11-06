@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 import os
 from pathlib import Path
+from environs import Env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -124,6 +125,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
-INTERNAL_IPS = [    
+INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+
+env = Env()
+env.read_env()
+from authlib.jose import JsonWebToken
+
+ACCESS_TOKEN_TIME_TOLERANCE = 3600
+JWT_ALGORITHM = env.str('JWT_ALGORITHM', 'RS256')
+JWT_PRIVATE_KEY = env.str('JWT_PRIVATE_KEY')
+jwt = JsonWebToken([JWT_ALGORITHM])

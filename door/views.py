@@ -1,13 +1,9 @@
-from enum import Enum
+
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
-from environs import Env
+
 import aiohttp
 from django.core.paginator import Paginator
-
-env = Env()
-env.read_env()
-
 from time import time
 from django.http import Http404, HttpResponse, HttpResponseNotFound
 from django.shortcuts import redirect, render, get_object_or_404
@@ -15,22 +11,16 @@ from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 
-from .models import *
+
 from .utils import *
 from .forms import *
 from django.http import JsonResponse
-from authlib.jose import JsonWebToken
+from door_manager.settings import *
+
+
+
 
 CONTROLLERS = list(Door.objects.all())
-# CONTROLLERS = [
-#     {'name': "Qotto", 'url': "http://127.0.0.1:8000"},
-#     {'name': "RBMG", 'url': "http://127.0.0.1:8001"},
-# ]
-
-ACCESS_TOKEN_TIME_TOLERANCE = 3600
-JWT_ALGORITHM = env.str('JWT_ALGORITHM', 'RS256')
-JWT_PRIVATE_KEY = env.str('JWT_PRIVATE_KEY')
-jwt = JsonWebToken([JWT_ALGORITHM])
 
 
 class DoorHome(DataMixin, ListView):
@@ -171,16 +161,15 @@ def about(request):
 
 
 def history(request):
-    print(request.user.username)
-    h1 = History(door=Door.objects.get(pk=1), user=User.objects.get(name=request.user.username))
-    h1.save()
-    context = {
-        'title': 'User',
-        'menu': menu,
-        'users': User.objects.all(),
-        'doors': Door.objects.all(),
-        'history': History.objects.all(),
+    history_list = History.objects.all()
+    paginator = Paginator(history_list, 5)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
+    context = {
+        'title': 'History',
+        'menu': menu,
+        'page_obj': page_obj,
     }
     return render(request, 'door/history.html', context=context)
 
@@ -204,14 +193,12 @@ def get_doors(request):
 
 async def controller_determinant(request, path, door_name):
     print(await get_all_users(request) + " open " + door_name)
-    #print(await get_doors(request))
-
-    # h = await History(door=Door.objects.get(name=door_name), user=User.objects.get(name=request.user.username))
+    # print(await get_doors(request))
+    d = await Door.objects.aget(name=door_name)
+    u = await User.objects.aget(name=request.user.username)
+    h = History(door=d, user=u)
     # h1 = History(door=Door.objects.get(pk=1), user=User.objects.get(pk=1))
-    # h1.save()
-
-    # event = History(door=door_name, user=await get_all_users(request))
-    # event.save()
+    await sync_to_async(h.save)()
 
     url = [controller.url for controller in CONTROLLERS if controller.name == door_name][0] + "/" + path
 

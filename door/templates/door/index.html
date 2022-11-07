@@ -12,8 +12,7 @@
             </div>
 
         <li><h2>{{door.name}}</h2>
-            <button onclick="window.location.href = '/door-status/{{door.name}}';"> /door-status/{{door.name}}</button>
-            </p>
+
             <button type="button" class="btn btn-secondary" name={{ door.name }} onclick="openDoor( '{{ door.name }}')">
                 Open door {{door.name}}
             </button>

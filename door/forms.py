@@ -6,7 +6,6 @@ from captcha.fields import CaptchaField
 from .models import *
 
 
-
 class AddUserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,3 +49,19 @@ class SupportForm(forms.Form):
     email = forms.EmailField(label='Email')
     content = forms.CharField(widget=forms.Textarea(attrs={'cols': 60, 'rows': 10}))
     capatcha = CaptchaField()
+
+
+class HistoryForm(forms.Form):
+    name = forms.CharField(label='Name', max_length=255)
+    door = forms.CharField(label='Name', max_length=255)
+
+
+class SearchForm(forms.Form):
+    pass
+
+
+class NameForm(forms.Form):
+    data_for_search = forms.CharField(max_length=100,
+                                      widget=forms.TextInput
+                                      (attrs={'placeholder': 'Enter ...',
+                                              'class': 'form-control'}))

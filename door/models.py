@@ -54,14 +54,11 @@ class History(models.Model):
         ordering = ('-time_opening',)
 
     def __str__(self):
-        return self.time_opening
-
+        return f"{self.user}"
 
 class ErrorLog(models.Model):
-    error_name = models.CharField(max_length=200)
+    error_name = models.CharField(max_length=1000)
     time_error = models.DateTimeField(auto_now_add=True, db_index=True)
-    door = models.ForeignKey('Door', on_delete=models.PROTECT)
-    user = models.ForeignKey('User', on_delete=models.PROTECT)
 
     def __str__(self):
         return self.time_error

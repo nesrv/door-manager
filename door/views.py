@@ -1,4 +1,3 @@
-
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
 
@@ -11,14 +10,10 @@ from django.views.generic import ListView, DetailView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
 
-
 from .utils import *
 from .forms import *
 from django.http import JsonResponse
 from door_manager.settings import *
-
-
-
 
 CONTROLLERS = list(Door.objects.all())
 
@@ -111,17 +106,35 @@ class RegisterUser(DataMixin, CreateView):
         return redirect('home')
 
 
+class ErrorPage(DataMixin, ListView):
+    model = ErrorLog
+    template_name = 'door/error.html'
+    context_object_name = 'error'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['error'] = ErrorLog.objects.all()
+        c_def = self.get_user_context(title='Error Log')
+        return dict(list(context.items()) + list(c_def.items()))
+
+
 class LoginUser(DataMixin, LoginView):
     form_class = LoginUserForm
     template_name = 'door/login.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        c_def = self.get_user_context(title="Авторизация")
+        c_def = self.get_user_context(title="Authorisation")
         return dict(list(context.items()) + list(c_def.items()))
 
     def get_success_url(self):
         return reverse_lazy('home')
+
+
+class FilterHistory(DataMixin, FormView):
+    form_class = HistoryForm
+    template_name = 'door/history.html'
+    success_url = reverse_lazy('home')
 
 
 class SupportFormView(DataMixin, FormView):
@@ -147,12 +160,12 @@ def logout_user(request):
 def about(request):
     # print (request.user.id)
     contact_list = User.objects.all()
-    paginator = Paginator(contact_list, 3)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    # paginator = Paginator(contact_list, 3)
+    #
+    # page_number = request.GET.get('page')
+    # page_obj = paginator.get_page(page_number)
     context = {
-        'page_obj': page_obj,
+        'page_obj': contact_list,
         'menu': menu,
         'title': 'Test paginator (3 users per page)',
     }
@@ -160,22 +173,55 @@ def about(request):
     return render(request, 'door/about.html', context=context)
 
 
-def history(request):
-    history_list = History.objects.all()
-    paginator = Paginator(history_list, 5)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+# def history(request):
+#     history_list = History.objects.all()
+#     # door_list = Door.objects.all()
+#     # user_list = User.objects.all()
+#     # paginator = Paginator(history_list, 5)
+#     # page_number = request.GET.get('page')
+#     # page_obj = paginator.get_page(page_number)
+#
+#     context = {
+#         'title': 'History',
+#         'menu': menu,
+#         'page_obj': history_list,
+#         # 'door_list': door_list,
+#         # 'user_list'  : user_list,
+#
+#     }
+#     return render(request, 'door/history.html', context=context)
 
+def history(request):
+    if request.method == 'POST':
+        users = request.POST.getlist('users-list')
+        doors = request.POST.getlist('door')
+        date_first = request.POST.get('date1')
+        date_last = request.POST.get('date2')
+        page_obj = History.objects.filter(
+            user__name__in=users,
+            door__name__in=doors,
+            time_opening__range=[date_first, date_last]
+        )
+    else:
+        page_obj = History.objects.all()
     context = {
         'title': 'History',
         'menu': menu,
         'page_obj': page_obj,
-    }
-    return render(request, 'door/history.html', context=context)
+        'door_list': Door.objects.all(),
+        'user_list': User.objects.all(), }
 
+    # if form.is_valid():
+    #     # search_res = []
+    #     data_for_search = form.data['data_for_search']
+    #
+    #     # if data_for_search.isdigit():
+    #     #     search_res = list(History.objects.filter(door_id=int(data_for_search)))
+    #     search_res = list(History.objects.filter(name='Sacha'))
+    #
+    #     return render(request, "door/history.html", {"page_obj": search_res, "form": form})
 
-def support():
-    pass
+    return render(request, "door/history.html", context=context)
 
 
 from asgiref.sync import sync_to_async
@@ -192,13 +238,19 @@ def get_doors(request):
 
 
 async def controller_determinant(request, path, door_name):
-    print(await get_all_users(request) + " open " + door_name)
+    print(await get_all_users(request) + path + door_name)
     # print(await get_doors(request))
-    d = await Door.objects.aget(name=door_name)
-    u = await User.objects.aget(name=request.user.username)
-    h = History(door=d, user=u)
-    # h1 = History(door=Door.objects.get(pk=1), user=User.objects.get(pk=1))
-    await sync_to_async(h.save)()
+    try:
+
+        d = await Door.objects.aget(name=door_name)
+        u = await User.objects.aget(name=request.user.username)
+        h = History(door=d, user=u)
+    except Exception as err:
+        err = ErrorLog(error_name=err)
+        await sync_to_async(err.save)()
+
+    if path == "grant-access":
+        await sync_to_async(h.save)()
 
     url = [controller.url for controller in CONTROLLERS if controller.name == door_name][0] + "/" + path
 
@@ -220,13 +272,13 @@ async def controller_determinant(request, path, door_name):
                 'Authorization': f'Bearer {jwt_token}',
             },
         )
-        resp = await response.json()
-        # print (request.user.username)
+        try:
+            resp = await response.json()
+        except Exception as err:
+            err = ErrorLog(error_name=err)
+            await sync_to_async(err.save)()
+
         return JsonResponse(resp)
-
-
-def errors(request):
-    pass
 
 
 def errors(request):

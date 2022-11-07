@@ -1,33 +1,92 @@
 {%  extends 'door/base.html' %}
-
-
-
-
-
-
 {% block content %}
 
 <h1> {{title}} </h1>
 <br>
+<h5> Select a user ... </h5>
 
-{% for h in page_obj %}
+<form action="" method="post">
+    {% csrf_token %}
+    <select id = "users" name="users-list">
+    {% for user in user_list %}
+        <option value = "{{user.name}}" /> {{user.name}} </option>
+    {% endfor %}
+    </select>
+    <br><br>
+    <h5> Choose the doors ... </h5>
+    {% for door in door_list %}
+        <input type="checkbox" name="door" value = "{{door.name}}" checked/> {{door.name}}
+    {% endfor %}
+    <br><br>
 
-# {{ h.id }}. {{ h.time_opening|date:'Y-m-d H:i:s' }}
-{{ h.user }} open  {{ h.door }}
-<hr>
-{% endfor %}
 
-<nav>
-    <ul>
-        {% for p in page_obj.paginator.page_range %}
+    Date from <input type="date" id="date_first" name="date1" value="2022-11-01"/>
+    to <input type="date" id="date_last" name="date2"/>
+      <br><br>
+    <p><input type="submit" value="Select"></p>
+    <script>
+        document.getElementById('date_last').valueAsDate = new Date();
+    </script>
 
-            <a href="?page={{ p }}"> {{ p }} </a>
+</form>
+<!--<form action="" method="post">-->
+<!--    {% csrf_token %}-->
+<!--    <div class="input-group mb-3">-->
+<!--        <input type="text" class="form-control" placeholder="Enter ..." aria-label="Recipient's "-->
+<!--               aria-describedby="basic-addon2" name="data_for_search" value="">-->
+<!--        <div class="input-group-append">-->
+<!--            <button class="btn btn-outline-secondary" type="submit" value="OK">Search</button>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</form>-->
 
-        {% endfor %}
+<table class="table table-hover">
+    <thead>
+    <tr>
+        <th scope="col">№</th>
+        <th scope="col">Date</th>
+        <th scope="col">User</th>
+        <th scope="col">Door</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for info in page_obj %}
+    <tr>
+        <th scope="row">{{info.id}}</th>
+        <td>{{info.time_opening|date:'Y-m-d'}}</td>
+        <td>{{info.user}}</td>
+        <td>{{info.door}}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-    </ul>
-</nav>
 
+<!--<form id="form" class="p-3" action='' method="POST">-->
+<!--    <h2> Sort by door </h2>-->
+<!--    <select class="form-control" id="select_sort" name="sort_user">-->
+<!--        {% for door in door_list %}-->
+
+<!--        <option value="{{ door.id }}"> {{ door.id }}. {{ door.name }}</option>-->
+<!--        {% endfor %}-->
+<!--    </select>-->
+<!--    <br>-->
+<!--    <h2> Sort by user </h2>-->
+<!--    <select class="form-control" id="to-curr" name="to-curr" value="{{ to_curr }}">-->
+<!--        {% for user in user_list %}-->
+
+<!--        <option value="{{ user.id }}"> {{ user.id }}. {{ user.name }}</option>-->
+<!--        {% endfor %}-->
+<!--    </select>-->
+<!--</form>-->
+<!--<br>-->
+
+<!--{% for h in page_obj %}-->
+
+<!--# {{ h.id }}. {{ h.time_opening|date:'Y-m-d' }}-->
+<!--{{ h.user }} <b> open </b>   {{ h.door }} at {{ h.time_opening|date:'H:i:s' }}-->
+<!--<hr>-->
+<!--{% endfor %}-->
 
 
 {% endblock %}

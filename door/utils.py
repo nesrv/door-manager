@@ -7,8 +7,7 @@ menu = [
     {'title': "Users", 'url_name': 'users'},
     {'title': "Add user", 'url_name': 'adduser'},
     {'title': "History", 'url_name': 'history'},
-    {'title': "Error log", 'url_name': 'errors'},
-    {'title': "About", 'url_name': 'about'},
+    {'title': "Error log", 'url_name': 'error'},
     {'title': "Support", 'url_name': 'support'},
     
 ]

@@ -24,8 +24,8 @@ Class History{
 }
 
 Class ErrorLog{
+    DateTimeField time_error
     CharField error_name
-    DateTimeField DateTimeField
    }
 
 @enduml

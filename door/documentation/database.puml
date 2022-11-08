@@ -1,0 +1,31 @@
+@startuml
+History - Door: write <
+Door - ErrorLog: write  >
+User *-- Door: > open
+
+Class Door {
+    CharField name
+    SlugField slug
+    URLField url
+}
+
+Class User {
+    CharField name
+    CharField login
+    SlugField slug
+    CharField password
+    ForeignKey door
+}
+
+Class History{
+    DateTimeField time_opening
+    ForeignKey door
+    ForeignKey user
+}
+
+Class ErrorLog{
+    CharField error_name
+    DateTimeField DateTimeField
+   }
+
+@enduml

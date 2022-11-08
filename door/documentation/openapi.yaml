@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info:
+  title: Ouvre Porte controller - OpenAPI 3.0
+  description: |-
+    The tiny service that is used to open doors by controlling a small relay module  based on the OpenAPI 3.0 specification.  
+    Some useful links:
+    - [Ouvre Porte controller repository] (https://gitlab.com/netica-code/ouvre-porte/apps/app-hw-door-controller)
+    - [The source API definition for the Pet Store](https://gitlab.com/netica-code/ouvre-porte/doc-api-specification/openapi.yaml)
+
+  version: 0.1.0
+servers:
+  - url: http://localhost:8000
+
+paths:
+  /health:
+    get:
+      responses:
+        '200':
+          description: Health check
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: ok
+
+  /grant-access:
+    post:
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Access granted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        '401':
+          description: Access refused
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Error'
+
+        '503':
+          description: Something went wrong while trying to grant access through the door
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: false
+        error:
+          type: string

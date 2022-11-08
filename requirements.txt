@@ -2,3 +2,4 @@ aiohttp==3.7.3
 aiohttp-jinja2==1.5 # модуль для работы с HTML-шаблонами
 Authlib==1.0.1
 environs==9.5.0
+django-simple-captcha==0.5.17

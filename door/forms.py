@@ -56,12 +56,3 @@ class HistoryForm(forms.Form):
     door = forms.CharField(label='Name', max_length=255)
 
 
-class SearchForm(forms.Form):
-    pass
-
-
-class NameForm(forms.Form):
-    data_for_search = forms.CharField(max_length=100,
-                                      widget=forms.TextInput
-                                      (attrs={'placeholder': 'Enter ...',
-                                              'class': 'form-control'}))

@@ -9,22 +9,21 @@ menu = [
     {'title': "History", 'url_name': 'history'},
     {'title': "Error log", 'url_name': 'error'},
     {'title': "Support", 'url_name': 'support'},
-    
+
 ]
 
 
 class DataMixin:
     paginate_by = 2
-    
-    
+
     def get_user_context(self, **kwargs):
-        context = kwargs        
-        doors = Door.objects.all()        
+        context = kwargs
+        doors = Door.objects.all()
         user_menu = menu.copy()
         if not self.request.user.is_authenticated:
             for _ in range(3):
-                user_menu.pop(2)           
-        
+                user_menu.pop(2)
+
         context['menu'] = user_menu
         context['door'] = doors
         if 'door_selected' not in context:

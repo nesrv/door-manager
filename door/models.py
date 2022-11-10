@@ -62,3 +62,10 @@ class ErrorLog(models.Model):
 
     def __str__(self):
         return self.time_error
+
+
+class Image(models.Model):
+    image = models.ImageField()
+
+    def __str__(self):
+        return str(self.image)

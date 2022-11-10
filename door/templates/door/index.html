@@ -8,19 +8,23 @@
         <li>
             <div class="article-panel">
                 <p class="first"> Door : {{door.name}}</p>
-                <p class="last">Date: {{door.time_update|date:"d-m-Y H:i:s"}}</p>
+                <p class="last" > Last opening time:  </p>
             </div>
+              <br>
+        <li><h2 class="door-name">{{door.name}}</h2>
 
-        <li><h2>{{door.name}}</h2>
+            <button type="button" class="btn btn-info" name={{ door.name }} id={{ door.name }} onclick="openDoor( '{{ door.name }}')">
 
-            <button type="button" class="btn btn-secondary" name={{ door.name }} onclick="openDoor( '{{ door.name }}')">
-                Open door {{door.name}}
+               Check ...
             </button>
-            <button type="button" class="btn btn-success" onclick="checkStatus('{{ door.name }}')"> Check door status
-            </button>
-            <p class="blink">
-                <span class="badge text-bg-danger" id={{ door.name }}> Closed </span>
-        </li>
+<!--            <button type="button" class="btn btn-success" onclick="checkStatus('{{ door.name }}')"> Check door status-->
+<!--            </button>-->
+
+                <span class="badge text-bg-danger" > {{ user }} </span>
+        <br>
+       </li>
+        <br>
+
         {% endfor %}
 </div>
 
@@ -36,10 +40,11 @@
             fetch(url)
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById(doorName).innerHTML = "Сurrent status: " + data.status;
+                    document.getElementById(doorName).innerHTML = data.status;
+                    console.log("!!!");
 
                     if (data.status == "closed")
-                    document.getElementById(doorName).className = "badge text-bg-danger"
+                    document.getElementById(doorName).className = "btn btn-info"
 
 
 
@@ -57,13 +62,22 @@
         //console.log(response);
         let commits = await response.json();
         if (commits.ok==true){
-            document.getElementById(doorName).innerHTML = "Opened";
-            document.getElementById(doorName).className = "badge bg-success"
+            document.getElementById(doorName).innerHTML = "opened";
+            document.getElementById(doorName).className = "btn btn-success"
+            document.getElementById(dataDoor).innerHTML = "123";
             }
         else {
             document.getElementById(doorName).innerHTML = "Access denied";
         }
         }
+    doors = document.getElementsByClassName('door-name');
+
+    for (let i=0; i<doors.length; i++) {
+        setInterval(checkStatus, 10 * 1000, doors[i].textContent);
+         checkStatus(doors[i].textContent);
+         console.log(doors[i].textContent);
+       }
+
 
 </script>
 {% endblock %}

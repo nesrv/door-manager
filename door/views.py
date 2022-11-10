@@ -1,6 +1,5 @@
 from django.urls import reverse_lazy
 from django.contrib.auth import logout, login
-
 import aiohttp
 from django.core.paginator import Paginator
 from time import time
@@ -12,11 +11,17 @@ from django.contrib.auth.views import LoginView
 
 from .utils import *
 from .forms import *
+
+
 from django.http import JsonResponse
 from door_manager.settings import *
 
-CONTROLLERS = list(Door.objects.all())
+from asgiref.sync import sync_to_async
 
+def getController():
+    return list(Door.objects.all())
+
+CONTROLLERS = list(Door.objects.all())
 
 class DoorHome(DataMixin, ListView):
     model = Door
@@ -26,6 +31,7 @@ class DoorHome(DataMixin, ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Main page'
+        context['users'] = User.objects.all()
         c_def = self.get_user_context(title='Main page')
         return dict(list(context.items()) + list(c_def.items()))
 
@@ -123,6 +129,7 @@ class LoginUser(DataMixin, LoginView):
     template_name = 'door/login.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
+
         context = super().get_context_data(**kwargs)
         c_def = self.get_user_context(title="Authorisation")
         return dict(list(context.items()) + list(c_def.items()))
@@ -157,39 +164,18 @@ def logout_user(request):
     return redirect('login')
 
 
-def about(request):
-    # print (request.user.id)
-    contact_list = User.objects.all()
-    # paginator = Paginator(contact_list, 3)
-    #
-    # page_number = request.GET.get('page')
-    # page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': contact_list,
-        'menu': menu,
-        'title': 'Test paginator (3 users per page)',
-    }
+class ShowUserInfo(DataMixin, DetailView):
+    model = User
+    template_name = 'door/info.html'
+    slug_url_kwarg = 'info_slug'
+    context_object_name = 'info'
 
-    return render(request, 'door/about.html', context=context)
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        c_def = self.get_user_context(title=context['info'])
+        return dict(list(context.items()) + list(c_def.items()))
 
 
-# def history(request):
-#     history_list = History.objects.all()
-#     # door_list = Door.objects.all()
-#     # user_list = User.objects.all()
-#     # paginator = Paginator(history_list, 5)
-#     # page_number = request.GET.get('page')
-#     # page_obj = paginator.get_page(page_number)
-#
-#     context = {
-#         'title': 'History',
-#         'menu': menu,
-#         'page_obj': history_list,
-#         # 'door_list': door_list,
-#         # 'user_list'  : user_list,
-#
-#     }
-#     return render(request, 'door/history.html', context=context)
 
 def history(request):
     if request.method == 'POST':
@@ -211,20 +197,8 @@ def history(request):
         'door_list': Door.objects.all(),
         'user_list': User.objects.all(), }
 
-    # if form.is_valid():
-    #     # search_res = []
-    #     data_for_search = form.data['data_for_search']
-    #
-    #     # if data_for_search.isdigit():
-    #     #     search_res = list(History.objects.filter(door_id=int(data_for_search)))
-    #     search_res = list(History.objects.filter(name='Sacha'))
-    #
-    #     return render(request, "door/history.html", {"page_obj": search_res, "form": form})
-
     return render(request, "door/history.html", context=context)
 
-
-from asgiref.sync import sync_to_async
 
 
 @sync_to_async
@@ -238,8 +212,7 @@ def get_doors(request):
 
 
 async def controller_determinant(request, path, door_name):
-    print(await get_all_users(request) + path + door_name)
-    # print(await get_doors(request))
+    print(await get_all_users(request), path,  door_name)
     try:
 
         d = await Door.objects.aget(name=door_name)
@@ -277,26 +250,10 @@ async def controller_determinant(request, path, door_name):
         except Exception as err:
             err = ErrorLog(error_name=err)
             await sync_to_async(err.save)()
-
+            # return JsonResponse(resp)
+        # print (await resp)
         return JsonResponse(resp)
 
-
-def errors(request):
-    pass
-
-
-def doors(request):
-    return HttpResponse("Doors")
-
-
-def edit_door(request, door):
-    return HttpResponseNotFound(f' Door edit {door} ')
-
-
-#   path('users/', about, name = 'users'),
-#     path('history/', about, name = 'history'),
-#     path('errors/', about, name = 'errors'),
-#     path('admin/', about, name = 'adduser'),
 
 
 def pageNotFound(request, exception):

@@ -71,7 +71,7 @@ optional = false
 python-versions = "*"
 
 [package.dependencies]
-cryptography = ">=3.2"
+cryptography = ">=2.7"
 
 [[package]]
 name = "cffi"
